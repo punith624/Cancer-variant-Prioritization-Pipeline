@@ -1,0 +1,17 @@
+
+Variant Interpretation Report
+------------------------------
+Gene: TP53
+Consequence: missense_variant
+Impact: HIGH
+SIFT: deleterious
+PolyPhen: probably_damaging
+Population Frequency: 0.0001
+
+Preliminary Assessment:
+This variant shows a HIGH impact with missense_variant.
+Predicted functional effect based on SIFT/PolyPhen should be evaluated.
+Low population frequency increases potential pathogenic relevance.
+
+Clinical Recommendation:
+Further clinical correlation and validation testing recommended.
