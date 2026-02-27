@@ -79,6 +79,9 @@ The report includes:
 - Gene-level findings
 - Interpretation summaries
 
+## 📊 Example Output
+
+<img width="367" height="127" alt="image" src="https://github.com/user-attachments/assets/483851c9-27b6-4e1a-a383-d30c43d2084b" />
 
 ## 🧠 Technologies Used
 
