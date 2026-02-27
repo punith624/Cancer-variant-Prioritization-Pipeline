@@ -61,6 +61,7 @@ output/ → Generated case reports
 cd genollm
 bash run_pipeline.sh
 
+pip install -r requirements.txt
 
 ```
 
