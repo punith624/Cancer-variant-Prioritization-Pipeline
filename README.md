@@ -1,43 +1,45 @@
-Cancer Variant Prioritization & Clinical Interpretation Pipeline
-Overview
+Key Highlights:
+Built end-to-end oncology variant prioritization workflow
+Implemented CSQ annotation parsing from VCF
+Designed cancer gene panel filtering logic
+Applied impact, pathogenicity, and population frequency thresholds
+Generated structured clinical-style JSON case reports
 
+Modular pipeline design (parser → prioritizer → interpreter)Cancer Variant Prioritization & Clinical Interpretation Pipeline
+
+Overview:
 This project implements an oncology-focused variant prioritization workflow for VEP-annotated VCF files derived from clinical NGS data.
 
 The pipeline parses CSQ annotations, applies cancer gene filtering, prioritizes pathogenic variants, and generates structured clinical-style reports.
 
-Workflow
+Workflow:
 VCF → CSQ Parsing → Cancer Gene Filtering → 
 Impact & Pathogenicity Filtering → 
 Variant Scoring → JSON Case Report
 
-Features
+Features:
 
 VEP CSQ annotation parsing
-
 Cancer gene panel filtering
-
 HIGH/MODERATE impact prioritization
-
 Pathogenicity-based filtering
-
 Population frequency thresholding
-
 Structured JSON case report output
 
 
-Project Structure
+Project Structure:
 data/      → Sample VCF file
 genollm/   → Core pipeline modules
 output/    → Generated reports
 
-Run Pipeline
+Run Pipeline:
 cd genollm
 bash run_pipeline.sh
 
 Output:
 output/case_report.json
 
-Technologies Used
+Technologies Used:
 Python
 Bash
 VCF (Variant Call Format)
