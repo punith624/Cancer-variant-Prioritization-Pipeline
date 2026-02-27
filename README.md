@@ -62,50 +62,53 @@ cd genollm
 bash run_pipeline.sh
 
 
----
+```
 
-📄 Output
+## 📄 Output
 
 The pipeline generates a structured clinical-style report:
+
 output/case_report.json
 
 The report includes:
 
-Case summary
-Number of variants parsed
-Number of prioritized variants
-Gene-level findings
-Interpretation summaries
+- Case summary
+- Number of variants parsed
+- Number of prioritized variants
+- Gene-level findings
+- Interpretation summaries
 
 
-🧠 Technologies Used
+## 🧠 Technologies Used
 
-Python
-Bash
-VCF (Variant Call Format)
-VEP CSQ annotation format
-Clinical genomics filtering logic
+- Python
+- Bash
+- VCF (Variant Call Format)
+- VEP CSQ annotation format
+- Clinical genomics filtering logic
 
 
-🎓 Learning Outcomes
+## 🎓 Learning Outcomes
 
 This project demonstrates:
 
-Understanding of VCF file structure
-Interpretation of VEP CSQ annotations
-Clinical genomics variant prioritization logic
-Oncology-focused filtering strategies
-Modular bioinformatics pipeline design
+- Understanding of VCF file structure
+- Interpretation of VEP CSQ annotations
+- Clinical genomics variant prioritization logic
+- Oncology-focused filtering strategies
+- Modular bioinformatics pipeline design
 
-📌 Future Improvements
 
-ACMG classification simulation
-Integration with ClinVar annotations
-Streamlit-based web dashboard
-PDF clinical report generation
-Docker containerization
+## 📌 Future Improvements
 
-👨‍💻 Author
+- ACMG classification simulation
+- Integration with ClinVar annotations
+- Streamlit-based web dashboard
+- PDF clinical report generation
+- Docker containerization
 
-Punith Kumar
+
+## 👨‍💻 Author
+
+Punith Kumar  
 Bioinformatics & Clinical Genomics Enthusiast
