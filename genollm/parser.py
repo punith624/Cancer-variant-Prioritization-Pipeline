@@ -1,4 +1,4 @@
-def parse_variants(vcf_file):
+def parse_vcf(vcf_path):
 
     variants = []
 
