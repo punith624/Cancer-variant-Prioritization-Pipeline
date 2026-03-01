@@ -1,5 +1,6 @@
-pandas
 openai
 python-dotenv
-reportlab
-streamlit
+streamlit==1.32.2
+pandas==2.2.2
+reportlab==4.0.8
+altair==4.2.2
