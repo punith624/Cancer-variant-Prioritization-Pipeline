@@ -13,8 +13,22 @@ st.set_page_config(
     layout="wide"
 )
 
+# ---------------------------
+# Title & Landing Description
+# ---------------------------
 st.title("🧬 Cancer Variant Interpretation Platform")
-st.markdown("**Oncology-focused ACMG classification system**")
+
+st.markdown("""
+This platform enables oncology-focused interpretation of **VEP-annotated VCF files**
+using a modular **ACMG-based classification engine**.
+
+Upload a clinical VCF file to generate:
+- Structured JSON case reports
+- Clinical-grade PDF reports
+- Variant classification summaries
+""")
+
+st.divider()
 
 # ---------------------------
 # Sidebar
@@ -22,15 +36,37 @@ st.markdown("**Oncology-focused ACMG classification system**")
 st.sidebar.header("About")
 st.sidebar.info("""
 This platform performs:
-- VEP parsing
+- VEP CSQ parsing
 - Cancer gene prioritization
 - ACMG rule-based classification
 - Structured interpretation output
+- JSON & PDF report generation
 """)
 
 # ---------------------------
-# File Upload
+# Demo Mode (Recruiter Feature)
 # ---------------------------
+st.subheader("🚀 Quick Demo")
+
+if st.button("Run Demo Using Sample Cancer VCF"):
+
+    with st.spinner("Running demo analysis..."):
+        report = run_pipeline("data/cancer_related.vcf")
+
+    st.success("Demo completed successfully!")
+
+    st.metric("Total Variants", report["total_variants"])
+    st.metric("Prioritized Variants", report["prioritized_variants"])
+
+    st.json(report)
+
+    st.divider()
+
+# ---------------------------
+# File Upload Section
+# ---------------------------
+st.subheader("📂 Upload Clinical VCF File")
+
 uploaded_file = st.file_uploader(
     "Upload VEP-annotated VCF file",
     type=["vcf"]
@@ -48,7 +84,6 @@ if uploaded_file:
 
     st.success("File uploaded successfully")
 
-    # Run analysis button
     if st.button("Run Analysis"):
 
         with st.spinner("Running variant prioritization and ACMG classification..."):
@@ -129,3 +164,9 @@ if uploaded_file:
                 file_name="clinical_report.pdf",
                 mime="application/pdf"
             )
+
+# ---------------------------
+# Footer Branding
+# ---------------------------
+st.divider()
+st.caption("Developed by Punith Kumar | Clinical Genomics & Bioinformatics")
