@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import json
 import streamlit as st
@@ -171,11 +172,13 @@ if mode == "🚀 Demo Mode":
 
     if st.button("Run Demo Analysis"):
 
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        demo_path = os.path.join(BASE_DIR, "data", "cancer_related.vcf")
+
         with st.spinner("Executing clinical interpretation engine..."):
-            report = run_with_progress("data/cancer_related.vcf")
+            report = run_with_progress(demo_path)
 
         display_report(report)
-
 
 # ---------------------------
 # UPLOAD MODE
