@@ -2,7 +2,7 @@ def parse_vcf(vcf_path):
 
     variants = []
 
-    with open(vcf_file) as f:
+    with open(vcf_path) as f:
         for line in f:
             if line.startswith("#"):
                 continue
