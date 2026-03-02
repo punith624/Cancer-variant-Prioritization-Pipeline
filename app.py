@@ -2,11 +2,12 @@ import pandas as pd
 import json
 import streamlit as st
 import tempfile
+import time
 from genollm.pipeline import run_pipeline
 from genollm.pdf_report import generate_pdf
 
 # ---------------------------
-# Page Configuration
+# Page Config
 # ---------------------------
 st.set_page_config(
     page_title="Cancer Variant Interpretation Platform",
@@ -14,7 +15,7 @@ st.set_page_config(
 )
 
 # ---------------------------
-# Title & Landing Description
+# Title + Landing
 # ---------------------------
 st.title("🧬 Cancer Variant Interpretation Platform")
 
@@ -22,8 +23,8 @@ st.markdown("""
 This platform enables oncology-focused interpretation of **VEP-annotated VCF files**
 using a modular **ACMG-based classification engine**.
 
-Upload a clinical VCF file to generate:
-- Structured JSON case reports
+Generate:
+- Structured JSON reports
 - Clinical-grade PDF reports
 - Variant classification summaries
 """)
@@ -31,139 +32,176 @@ Upload a clinical VCF file to generate:
 st.divider()
 
 # ---------------------------
-# Sidebar
+# Sidebar Navigation
 # ---------------------------
-st.sidebar.header("About")
-st.sidebar.info("""
-This platform performs:
-- VEP CSQ parsing
-- Cancer gene prioritization
-- ACMG rule-based classification
-- Structured interpretation output
-- JSON & PDF report generation
+st.sidebar.title("Navigation")
+
+mode = st.sidebar.radio(
+    "Select Mode",
+    ["🚀 Demo Mode", "📂 Upload Clinical VCF"]
+)
+
+st.sidebar.divider()
+st.sidebar.markdown("**Engine Workflow:**")
+st.sidebar.markdown("""
+1. VEP CSQ Parsing  
+2. Cancer Gene Prioritization  
+3. ACMG Rule Classification  
+4. Structured Report Generation  
 """)
 
 # ---------------------------
-# Demo Mode (Recruiter Feature)
+# Function: Display Report
 # ---------------------------
-st.subheader("🚀 Quick Demo")
-
-if st.button("Run Demo Using Sample Cancer VCF"):
-
-    with st.spinner("Running demo analysis..."):
-        report = run_pipeline("data/cancer_related.vcf")
-
-    st.success("Demo completed successfully!")
-
-    st.metric("Total Variants", report["total_variants"])
-    st.metric("Prioritized Variants", report["prioritized_variants"])
-
-    st.json(report)
+def display_report(report):
 
     st.divider()
 
-# ---------------------------
-# File Upload Section
-# ---------------------------
-st.subheader("📂 Upload Clinical VCF File")
+    # ---------------------------
+    # Case Summary Card
+    # ---------------------------
+    st.subheader("📋 Case Summary")
 
-uploaded_file = st.file_uploader(
-    "Upload VEP-annotated VCF file",
-    type=["vcf"]
-)
+    col1, col2, col3 = st.columns(3)
 
-# ---------------------------
-# Main Logic
-# ---------------------------
-if uploaded_file:
+    col1.metric("Total Variants", report["total_variants"])
+    col2.metric("Prioritized Variants", report["prioritized_variants"])
+    col3.metric("Reportable Findings", len(report["findings"]))
 
-    # Save uploaded file temporarily
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(uploaded_file.getvalue())
-        temp_path = tmp.name
+    st.divider()
 
-    st.success("File uploaded successfully")
+    # ---------------------------
+    # Classification Summary Chart
+    # ---------------------------
+    classifications = [
+        v["acmg_classification"]
+        for v in report["findings"]
+    ]
 
-    if st.button("Run Analysis"):
+    summary_df = (
+        pd.Series(classifications)
+        .value_counts()
+        .reset_index()
+    )
 
-        with st.spinner("Running variant prioritization and ACMG classification..."):
-            report = run_pipeline(temp_path)
+    summary_df.columns = ["Classification", "Count"]
 
-        st.divider()
+    st.subheader("📊 Classification Summary")
+    st.bar_chart(summary_df.set_index("Classification"))
 
-        # ---------------------------
-        # Metrics
-        # ---------------------------
-        col1, col2 = st.columns(2)
+    # ---------------------------
+    # Variant Findings
+    # ---------------------------
+    st.subheader("🔬 Variant Findings")
 
-        col1.metric("Total Variants", report["total_variants"])
-        col2.metric("Prioritized Variants", report["prioritized_variants"])
+    for variant in report["findings"]:
 
-        # ---------------------------
-        # Classification Summary Chart
-        # ---------------------------
-        classifications = [
-            v["acmg_classification"]
-            for v in report["findings"]
-        ]
+        classification = variant["acmg_classification"]
 
-        summary_df = (
-            pd.Series(classifications)
-            .value_counts()
-            .reset_index()
-        )
+        # Color-coded badges
+        if classification == "Pathogenic":
+            badge = "🔴 Pathogenic"
+        elif classification == "Likely Pathogenic":
+            badge = "🟠 Likely Pathogenic"
+        elif classification == "Benign":
+            badge = "🟢 Benign"
+        else:
+            badge = "🔵 Variant of Uncertain Significance"
 
-        summary_df.columns = ["Classification", "Count"]
+        with st.expander(f"{variant['gene']} — {badge}"):
+            st.json(variant)
 
-        st.subheader("📊 Classification Summary")
-        st.bar_chart(summary_df.set_index("Classification"))
+    # ---------------------------
+    # Downloads
+    # ---------------------------
+    st.subheader("⬇️ Download Report")
 
-        # ---------------------------
-        # Variant Findings
-        # ---------------------------
-        st.subheader("🔬 Variant Findings")
+    st.download_button(
+        label="Download JSON Report",
+        data=json.dumps(report, indent=4),
+        file_name="case_report.json",
+        mime="application/json"
+    )
 
-        for variant in report["findings"]:
+    pdf_path = generate_pdf(report)
 
-            classification = variant["acmg_classification"]
-
-            with st.expander(f"{variant['gene']} — {classification}"):
-
-                if classification == "Pathogenic":
-                    st.error("Pathogenic")
-                elif classification == "Likely Pathogenic":
-                    st.warning("Likely Pathogenic")
-                elif classification == "Benign":
-                    st.success("Benign")
-                else:
-                    st.info("Variant of Uncertain Significance")
-
-                st.json(variant)
-
-        # ---------------------------
-        # JSON Download
-        # ---------------------------
-        st.subheader("⬇️ Download Report")
-
+    with open(pdf_path, "rb") as f:
         st.download_button(
-            label="Download JSON Report",
-            data=json.dumps(report, indent=4),
-            file_name="case_report.json",
-            mime="application/json"
+            label="Download PDF Clinical Report",
+            data=f,
+            file_name="clinical_report.pdf",
+            mime="application/pdf"
         )
 
-        # ---------------------------
-        # PDF Download
-        # ---------------------------
-        pdf_path = generate_pdf(report)
 
-        with open(pdf_path, "rb") as f:
-            st.download_button(
-                label="Download PDF Clinical Report",
-                data=f,
-                file_name="clinical_report.pdf",
-                mime="application/pdf"
-            )
+# ---------------------------
+# Function: Run Engine with Progress
+# ---------------------------
+def run_with_progress(path):
+
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+
+    status_text.text("Step 1/3: Parsing VEP annotations...")
+    progress_bar.progress(30)
+    time.sleep(0.5)
+
+    status_text.text("Step 2/3: Cancer gene prioritization...")
+    progress_bar.progress(60)
+    time.sleep(0.5)
+
+    status_text.text("Step 3/3: Applying ACMG classification...")
+    progress_bar.progress(90)
+    time.sleep(0.5)
+
+    report = run_pipeline(path)
+
+    progress_bar.progress(100)
+    status_text.text("Analysis complete ✅")
+
+    return report
+
+
+# ---------------------------
+# DEMO MODE
+# ---------------------------
+if mode == "🚀 Demo Mode":
+
+    st.subheader("Run Demo Using Sample Cancer Dataset")
+
+    if st.button("Run Demo Analysis"):
+
+        with st.spinner("Executing clinical interpretation engine..."):
+            report = run_with_progress("data/cancer_related.vcf")
+
+        display_report(report)
+
+
+# ---------------------------
+# UPLOAD MODE
+# ---------------------------
+elif mode == "📂 Upload Clinical VCF":
+
+    uploaded_file = st.file_uploader(
+        "Upload VEP-annotated VCF file",
+        type=["vcf"]
+    )
+
+    if uploaded_file:
+
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(uploaded_file.getvalue())
+            temp_path = tmp.name
+
+        st.success("File uploaded successfully")
+
+        if st.button("Run Analysis"):
+
+            with st.spinner("Executing clinical interpretation engine..."):
+                report = run_with_progress(temp_path)
+
+            display_report(report)
+
 
 # ---------------------------
 # Footer Branding
