@@ -16,6 +16,14 @@ st.set_page_config(
 )
 
 # ---------------------------
+# Oncogene List
+# ---------------------------
+ONCOGENES = [
+    "TP53", "BRCA1", "BRCA2", "EGFR",
+    "KRAS", "NRAS", "PIK3CA", "ALK", "BRAF"
+]
+
+# ---------------------------
 # Title + Landing
 # ---------------------------
 st.title("🧬 Cancer Variant Interpretation Platform")
@@ -27,8 +35,24 @@ using a modular **ACMG-based classification engine**.
 Generate:
 - Structured JSON reports
 - Clinical-grade PDF reports
-- Variant classification summaries
+- Exportable CSV tables
 """)
+
+st.divider()
+
+# ---------------------------
+# Case Information
+# ---------------------------
+st.subheader("🧾 Case Information")
+
+case_id = st.text_input("Case ID", placeholder="e.g., CLN-2026-001")
+
+with st.expander("Patient Metadata (Optional)"):
+    col1, col2 = st.columns(2)
+
+    patient_age = col1.number_input("Age", min_value=0, max_value=120, step=1)
+    patient_gender = col2.selectbox("Gender", ["Male", "Female", "Other"])
+    tumor_type = st.text_input("Tumor Type", placeholder="e.g., Lung Adenocarcinoma")
 
 st.divider()
 
@@ -56,10 +80,18 @@ st.sidebar.markdown("""
 # ---------------------------
 def display_report(report):
 
+    # Attach Case Metadata
+    report["case_id"] = case_id
+    report["metadata"] = {
+        "age": patient_age,
+        "gender": patient_gender,
+        "tumor_type": tumor_type
+    }
+
     st.divider()
 
     # ---------------------------
-    # Case Summary Card
+    # Case Summary
     # ---------------------------
     st.subheader("📋 Case Summary")
 
@@ -98,8 +130,15 @@ def display_report(report):
     for variant in report["findings"]:
 
         classification = variant["acmg_classification"]
+        gene_name = variant["gene"]
 
-        # Color-coded badges
+        # Oncogene Highlight
+        if gene_name in ONCOGENES:
+            gene_display = f"🔥 {gene_name}"
+        else:
+            gene_display = gene_name
+
+        # Color Badge
         if classification == "Pathogenic":
             badge = "🔴 Pathogenic"
         elif classification == "Likely Pathogenic":
@@ -107,30 +146,44 @@ def display_report(report):
         elif classification == "Benign":
             badge = "🟢 Benign"
         else:
-            badge = "🔵 Variant of Uncertain Significance"
+            badge = "🔵 VUS"
 
-        with st.expander(f"{variant['gene']} — {badge}"):
+        with st.expander(f"{gene_display} — {badge}"):
             st.json(variant)
 
     # ---------------------------
     # Downloads
     # ---------------------------
-    st.subheader("⬇️ Download Report")
+    st.subheader("⬇️ Download Reports")
 
+    # JSON
     st.download_button(
         label="Download JSON Report",
         data=json.dumps(report, indent=4),
-        file_name="case_report.json",
+        file_name=f"{case_id or 'case'}_report.json",
         mime="application/json"
     )
 
+    # CSV
+    if report["findings"]:
+        findings_df = pd.DataFrame(report["findings"])
+        csv = findings_df.to_csv(index=False)
+
+        st.download_button(
+            label="Download CSV Table",
+            data=csv,
+            file_name=f"{case_id or 'case'}_variants.csv",
+            mime="text/csv"
+        )
+
+    # PDF
     pdf_path = generate_pdf(report)
 
     with open(pdf_path, "rb") as f:
         st.download_button(
             label="Download PDF Clinical Report",
             data=f,
-            file_name="clinical_report.pdf",
+            file_name=f"{case_id or 'case'}_clinical_report.pdf",
             mime="application/pdf"
         )
 
@@ -179,6 +232,7 @@ if mode == "🚀 Demo Mode":
             report = run_with_progress(demo_path)
 
         display_report(report)
+
 
 # ---------------------------
 # UPLOAD MODE
