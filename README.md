@@ -1,4 +1,13 @@
 # 🧬 Cancer Variant Prioritization & Clinical Interpretation Pipeline
+
+---
+
+# Badges 
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Bioinformatics](https://img.shields.io/badge/Field-Bioinformatics-green)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 ## 🚀 Live Demo
 
 🔗 https://cancer-variant-prioritization-pipeline-8cfptkagssgmayqgxxznii.streamlit.app/
@@ -51,21 +60,42 @@ Structured JSON Case Report
 ---
 
 ## 📂 Project Structure
-data/ → Sample VCF file
-genollm/ → Core pipeline modules
-output/ → Generated case reports
 
+Cancer-variant-Prioritization-Pipeline/
+│
+├── parser/
+│ VCF parsing and annotation extraction
+│
+├── prioritizer/
+│ Variant filtering and prioritization logic
+│
+├── interpreter/
+│ Clinical interpretation layer
+│
+├── reports/
+│ Structured output generation
+│
+├── app.py
+│ Streamlit application interface
+│
+└── README.md
 
 ---
 
 ## ▶️ How to Run
 
 ```bash
+git clone https://github.com/punith624/Cancer-variant-Prioritization-Pipeline.git
+cd Cancer-variant-Prioritization-Pipeline
+
 cd genollm
 bash run_pipeline.sh
 
+Install dependencies:
 pip install -r requirements.txt
 
+Run the pipeline:
+python app.py
 ```
 
 ## 📄 Output
@@ -94,6 +124,14 @@ The report includes:
 - VEP CSQ annotation format
 - Clinical genomics filtering logic
 
+## 🧑‍🔬 Use Cases
+
+This pipeline can support:
+
+• Cancer genomics research
+• Variant interpretation workflows
+• Clinical genomics pipelines
+• Bioinformatics education and training
 
 ## 🎓 Learning Outcomes
 
@@ -119,3 +157,7 @@ This project demonstrates:
 
 Punith Kumar  
 Bioinformatics & Clinical Genomics Enthusiast
+
+## ⭐ Support
+
+If you find this project useful, please consider starring the repository.
